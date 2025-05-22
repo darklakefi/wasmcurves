@@ -524,7 +524,7 @@ describe("Basic tests for g1 in bls12-377", function () {
         const pB = pb.alloc(n8q*12);
         const pAq = pb.alloc(n8q*12);
         const pAqi = pb.alloc(n8q*12);
-        const pq = pb.bls12381.pq;
+        const pq = pb.bls12377.pq;
         let res1, res2;
         for (let i=0; i<12; i++) {
             pb.set(pA+n8q*i, BigInt(i+1));
@@ -538,7 +538,7 @@ describe("Basic tests for g1 in bls12-377", function () {
 
         assertEqualF12(res1, res2);
 
-        pb.ftm_exp(pA, pq, n8q,pAq);
+        pb.ftm_exp(pA, pq, n8q, pAq);
 
         for (let power = 1; power<10; ++power) {
             pb["ftm_frobeniusMap"+power](pA, pAqi);
@@ -613,7 +613,7 @@ describe("Basic tests for g1 in bls12-377", function () {
         const peZ = pb.alloc(n8q);
 
         // 8444461749428370424248824938781546531375899335154063827935233455917409239041
-        pb.set(pr, 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001n);
+        pb.set(pr, 0x12ab655e9a2ca55660b44d1e5c37b00159aa76fed00000010a11800000000001n);
         // exponent
         pb.set(pe, 106235210180198604882540316637075684287980329051238111995712139693546018932241093264494748071517306769622339016965887940545616868977740776956331114208669048096023014240030283855320732674822015112378045596475753063495283321189911277229538128310317445791755580241629777518429452509566814093808570263170688546841970142607560869182015848885859564228523394916206826862636201683731796555280069472532667538082636164060660638842021603784813823731520380479371974344117655405957823698301145598937472326227383106480110267333564349588316835947583857320684960027625317784475206375521701018975985181971458934997777312102509401630591177011279033972954698427162261132666863248969684734588277453910430665974711436060133451105684351674512967514992806571818658626536547054583817291316501456783707778290618432513663246053413325875830595947461081315402614147673827n, 544);
         // (unsure)
@@ -626,7 +626,7 @@ describe("Basic tests for g1 in bls12-377", function () {
 
         pb.ftm_exp(pA, pe, 544, pBeta);
         pb.ftm_square(pBeta, pNormSquare);
-        pb.bls12381__cyclotomicSquare(pBeta, pCycSquare);
+        pb.bls12377__cyclotomicSquare(pBeta, pCycSquare);
 
         // printF12("NormSquare2: ", pNormSquare);
         // printF12("CycSquare2: ", pCycSquare);
@@ -637,7 +637,7 @@ describe("Basic tests for g1 in bls12-377", function () {
 
         pb.ftm_exp(pBeta, peZ, n8q, pNormExp);
         pb.ftm_conjugate(pNormExp, pNormExp);
-        pb.bls12381__cyclotomicExp_w0(pBeta, pCycExp);
+        pb.bls12377__cyclotomicExp_w0(pBeta, pCycExp);
 
         // printF12("NormExp: ", pNormExp);
         // printF12("CycExp: ", pCycExp);
@@ -648,8 +648,8 @@ describe("Basic tests for g1 in bls12-377", function () {
     });
 
     it("Should test unitary", async () => {
-        const pG1 = pb.bls12381.pG1gen;
-        const pG2 = pb.bls12381.pG2gen;
+        const pG1 = pb.bls12377.pG1gen;
+        const pG2 = pb.bls12377.pG2gen;
         const pnG1 = pb.alloc(n8q*3);
         const pnG2 = pb.alloc(n8q*6);
 
@@ -660,10 +660,10 @@ describe("Basic tests for g1 in bls12-377", function () {
         pb.g1m_neg(pG1, pnG1);
         pb.g2m_neg(pG2, pnG2);
 
-        pb.bls12381_pairing(pG1, pG2, pP);
+        pb.bls12377_pairing(pG1, pG2, pP);
         pb.ftm_conjugate(pP, pP);
-        pb.bls12381_pairing(pG1, pnG2, pQ);
-        pb.bls12381_pairing(pnG1, pG2, pR);
+        pb.bls12377_pairing(pG1, pnG2, pQ);
+        pb.bls12377_pairing(pnG1, pG2, pR);
 
         // printF12("P: ", pP);
         // printF12("Q: ", pQ);
@@ -688,8 +688,8 @@ describe("Basic tests for g1 in bls12-377", function () {
 
         const pG1s = pb.alloc(n8q*3);
         const pG2s = pb.alloc(n8q*2*3);
-        const pG1gen = pb.bls12381.pG1gen;
-        const pG2gen = pb.bls12381.pG2gen;
+        const pG1gen = pb.bls12377.pG1gen;
+        const pG2gen = pb.bls12377.pG2gen;
 
         pb.ftm_one(pOne);
         pb.g1m_timesScalar(pG1gen, ps, n8r, pG1s);
@@ -698,32 +698,32 @@ describe("Basic tests for g1 in bls12-377", function () {
         const pPreP = pb.alloc(n8q*3);
         const pPreQ = pb.alloc(n8q*2*3 + n8q*2*3*70);
 
-        pb.bls12381_prepareG1(pG1s, pPreP);
-        pb.bls12381_prepareG2(pG2gen, pPreQ);
+        pb.bls12377_prepareG1(pG1s, pPreP);
+        pb.bls12377_prepareG2(pG2gen, pPreQ);
 
 
         // printG1("pPreP: ", pPreP);
         // for (let i=0; i<75; i++) {
         //     printG1("pPreQ " + i + ":", pPreQ + i*48*2*3);
         // }
-        pb.bls12381_millerLoop(pPreP, pPreQ, pRes1);
+        pb.bls12377_millerLoop(pPreP, pPreQ, pRes1);
         // printF12("Miller Result: ", pRes1);
-        pb.bls12381_finalExponentiation(pRes1, pRes2);
+        pb.bls12377_finalExponentiation(pRes1, pRes2);
 
-        pb.bls12381_prepareG1(pG1gen, pPreP);
-        pb.bls12381_prepareG2(pG2s, pPreQ);
-        pb.bls12381_millerLoop(pPreP, pPreQ, pRes3);
-        pb.bls12381_finalExponentiation(pRes3, pRes4);
+        pb.bls12377_prepareG1(pG1gen, pPreP);
+        pb.bls12377_prepareG2(pG2s, pPreQ);
+        pb.bls12377_millerLoop(pPreP, pPreQ, pRes3);
+        pb.bls12377_finalExponentiation(pRes3, pRes4);
 
         const res2 = getFieldElementF12(pRes2);
         const res4 = getFieldElementF12(pRes4);
 
         assertEqualF12(res2, res4);
 
-        pb.bls12381_pairing(pG1s, pG2gen, pRes1);
+        pb.bls12377_pairing(pG1s, pG2gen, pRes1);
 
         const start = new Date().getTime();
-        pb.bls12381_pairing(pG1gen, pG2s, pRes2);
+        pb.bls12377_pairing(pG1gen, pG2s, pRes2);
         const end = new Date().getTime();
         const time = end - start;
         console.log("Time to compute a single pairing (ms): " + time);
@@ -736,14 +736,14 @@ describe("Basic tests for g1 in bls12-377", function () {
     });
 
     it("Generator should be in group G1", async () => {
-        const pG1 = pb.bls12381.pG1gen;
+        const pG1 = pb.bls12377.pG1gen;
 
         assert.equal(pb.g1m_inGroupAffine(pG1), 1);
     });
 
     it("Point in curve and not in group G1", async () => {
         const p1 = pb.alloc(n8q*3);
-        const pG1b = pb.bls12381.pG1b;
+        const pG1b = pb.bls12377.pG1b;
 
         pb.set(p1, 4n, n8q);
         pb.f1m_toMontgomery(p1, p1);
@@ -770,7 +770,7 @@ describe("Basic tests for g1 in bls12-377", function () {
     });
 
     it("It should test in group G2", async () => {
-        const pG2 = pb.bls12381.pG2gen;
+        const pG2 = pb.bls12377.pG2gen;
 
         assert.equal(pb.g2m_inGroupAffine(pG2), 1);
     });
@@ -778,7 +778,7 @@ describe("Basic tests for g1 in bls12-377", function () {
 
     it("Point in curve and not in group G2", async () => {
         const p1 = pb.alloc(n8q*6);
-        const pG2b = pb.bls12381.pG2b;
+        const pG2b = pb.bls12377.pG2b;
 
         pb.set(p1, 0n, n8q);
         pb.set(p1+n8q, 4n, n8q);
